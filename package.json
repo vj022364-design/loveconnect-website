@@ -1,0 +1,9 @@
+{
+  "name": "loveconnect-razorpay-demo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "LoveConnect membership checkout demo with server-side Razorpay signature verification",
+  "main": "server.js",
+  "scripts": { "start": "node server.js" },
+  "dependencies": { "dotenv": "^16.4.7", "express": "^4.21.2", "razorpay": "^2.9.6" }
+}
