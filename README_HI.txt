@@ -1,16 +1,23 @@
-LOVE CONNECT + RAZORPAY CHECKOUT (Hindi Setup)
+LOVE CONNECT — Razorpay setup (Hindi)
 
-1) Computer/server पर Node.js 18 या नया install करें.
-2) इस folder में terminal खोलकर चलाएँ: npm install
-3) .env.example की copy बनाकर उसका नाम .env रखें.
-4) Razorpay Dashboard > Account & Settings/API Keys से TEST MODE की Key ID और Key Secret लें और .env में भरें. Secret key कभी HTML, GitHub या किसी chat में न डालें.
-5) चलाएँ: npm start
-6) Browser में http://localhost:3000 खोलें. Test mode में test payment करें.
-7) Live payments के लिए Razorpay account verification/activation और live API keys की जरूरत होगी. पहले test mode में पूरा flow जाँचें.
+इस ZIP में:
+- public/index.html: वेबसाइट; Login के पास से “Demo” शब्द हटाया गया है।
+- server.js: Razorpay order बनाता है और payment signature verify करता है।
+- package.json: Node.js dependencies
+- .env.example: सुरक्षित environment variables का नमूना
 
-IMPORTANT
-- Server order बनाता है और payment signature server पर verify करता है.
-- अभी user registration/login, database, membership expiry/renewal और verified payment को किसी specific user से जोड़ना implement नहीं है. इसलिए production website पर membership access को सुरक्षित रूप से enforce करने से पहले database + authenticated accounts जोड़ें.
-- HTML का localStorage flag केवल browser UI demo है; इसे access security न मानें.
-- Chat/voice/video buttons केवल demo text हैं; वास्तविक chat/calls implement नहीं हैं.
-- Pexels images demo profiles के लिए हैं; इन्हें असली users की पहचान बताकर न दिखाएँ.
+सेटअप:
+1. इस प्रोजेक्ट को Node.js hosting (जैसे Render) पर deploy करें। GitHub Pages पर server.js नहीं चल सकता।
+2. Hosting के Environment Variables में:
+   RAZORPAY_KEY_ID = आपकी Razorpay Live Key ID (rzp_live_...)
+   RAZORPAY_KEY_SECRET = आपकी Live Key Secret
+   PORT = 3000 (यदि hosting स्वयं PORT देती है, तो उसे बदलने की जरूरत नहीं)
+3. npm install और npm start चलाएँ, या hosting के build/start settings में यही commands रखें।
+4. Razorpay account live payments के लिए activated/verified होना चाहिए।
+5. पहले छोटा, वास्तविक परीक्षण केवल अपनी वेबसाइट और Razorpay की शर्तों के अनुसार करें।
+
+सुरक्षा:
+- Secret Key को HTML, GitHub repository या chat में कभी न डालें।
+- .env को repository में upload न करें।
+- सिर्फ Login शीर्षक से Demo हटाया गया है। Login/account registration अभी वास्तविक रूप से implement नहीं है।
+- यह checkout code payment signature verify करता है, लेकिन membership को user account/database से जोड़ना अभी बाकी है।
