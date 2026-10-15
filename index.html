@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LoveConnect — Dating Demo</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#fff5fa;color:#333}
+header{background:linear-gradient(90deg,#ff4081,#8e44ad);color:#fff;padding:18px;text-align:center}
+nav{background:#fff;padding:14px;text-align:center;position:sticky;top:0}
+nav a{margin:8px;color:#e91e63;text-decoration:none;font-weight:bold}
+.hero{text-align:center;padding:40px 15px;background:#ffe0ed}.hero h2{font-size:30px;color:#d81b60}
+.btn{display:inline-block;background:#e91e63;color:#fff;padding:12px 22px;border:0;border-radius:25px;text-decoration:none;cursor:pointer;margin:5px}
+.section{padding:28px 15px;text-align:center}.profiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px;max-width:1000px;margin:auto}
+.card{background:#fff;padding:18px 10px;border-radius:20px;box-shadow:0 5px 18px #00000012}
+.avatar{width:120px;height:120px;margin:auto;border-radius:50%;object-fit:cover;border:5px solid #ffe0ed;background:#ffe0ed}
+.card h3{color:#d81b60;margin:15px 0 8px}.card p{margin:8px}
+.membership{background:#fff;max-width:400px;margin:20px auto;padding:25px;border-radius:18px;box-shadow:0 3px 15px #00000015}
+.price{color:#e91e63;font-size:38px;font-weight:bold}footer{background:#302033;color:#fff;text-align:center;padding:22px}
+.notice{color:#666;font-size:12px;line-height:1.5}
+@media(min-width:700px){.profiles{grid-template-columns:repeat(4,minmax(0,1fr))}.avatar{width:130px;height:130px}}
+</style>
+</head>
+<body>
+<header><h1>💗 LoveConnect</h1><p>Meet New People • Chat • Connect</p></header>
+<nav><a href="#home">Home</a><a href="#profiles">Profiles</a><a href="#membership">Membership</a><a href="#login">Login</a></nav>
+<section class="hero" id="home"><h2>अपना नया कनेक्शन खोजें ❤️</h2><p>नए लोगों से मिलें और बातचीत शुरू करें।</p><a class="btn" href="#profiles">प्रोफाइल देखें</a><a class="btn" href="#membership">Join Now ₹299</a></section>
+<section class="section" id="profiles"><h2>💕 Girls Profiles</h2><div class="profiles" id="profileList"></div></section>
+<section class="section" id="membership"><h2>⭐ Premium Membership</h2><div class="membership"><h3>6 Months Membership</h3><div class="price">₹299</div><p>पूरे 6 महीने के लिए</p><ul style="text-align:left;line-height:2"><li>20 प्रोफाइल</li><li>Chat विकल्प (मेंबरशिप के बाद)</li><li>Voice Call विकल्प (मेंबरशिप के बाद)</li><li>Video Call विकल्प (मेंबरशिप के बाद)</li><li>मोबाइल-फ्रेंडली वेबसाइट</li></ul><button class="btn" onclick="startPayment()">Buy Membership</button><p class="notice">सुरक्षित भुगतान Razorpay Checkout के माध्यम से। भुगतान की पुष्टि सर्वर पर होगी।</p></div></section>
+<section class="section" id="login"><h2>🔐 Login Demo</h2><div class="membership"><input id="email" type="email" placeholder="Email" style="width:100%;padding:12px;margin:8px 0"><input id="password" type="password" placeholder="Password" style="width:100%;padding:12px;margin:8px 0"><button class="btn" onclick="alert('यह केवल डेमो है; वास्तविक लॉगिन अभी सक्रिय नहीं है।')">Login</button></div></section>
+<footer><h3>💗 LoveConnect</h3><p>केवल 18+ यूज़र्स के लिए।</p><p class="notice">वास्तविक प्रोफाइल फोटो केवल संबंधित व्यक्ति की अनुमति से इस्तेमाल करें।</p>© 2026 LoveConnect</footer>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+async function startPayment(){
+  try {
+    const orderRes = await fetch('/api/create-order', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({plan:'six_months'})});
+    const order = await orderRes.json();
+    if(!orderRes.ok) throw new Error(order.error || 'Order नहीं बन पाया');
+    const options = {
+      key: order.keyId,
+      amount: order.amount,
+      currency: order.currency,
+      name: 'LoveConnect',
+      description: '6 Months Membership',
+      order_id: order.id,
+      handler: async function(response){
+        const verifyRes = await fetch('/api/verify-payment',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(response)});
+        const result = await verifyRes.json();
+        if(verifyRes.ok && result.verified) { localStorage.setItem('loveconnect_membership_paid','yes'); refreshMembershipUI(); alert('Payment verified! Membership options अब प्रोफाइल खोलने पर दिखेंगे।'); }
+        else alert('Payment verify नहीं हो पाया। कृपया support से संपर्क करें।');
+      },
+      theme: {color:'#e91e63'},
+      modal: {ondismiss:function(){}}
+    };
+    new Razorpay(options).open();
+  } catch(e) {
+    alert(e.message || 'Payment शुरू नहीं हो पाया। सर्वर और Razorpay keys सेट करें।');
+  }
+}
+const girls=[
+["Aanya",23,"Delhi",0],["Meera",25,"Mumbai",1],["Isha",22,"Jaipur",2],["Kavya",24,"Pune",3],
+["Riya",26,"Lucknow",4],["Sana",23,"Bhopal",5],["Diya",21,"Indore",6],["Tara",27,"Chandigarh",7],
+["Naina",24,"Noida",8],["Anaya",22,"Agra",9],["Kiara",25,"Surat",10],["Zoya",23,"Hyderabad",11],
+["Pihu",21,"Kanpur",12],["Myra",26,"Kolkata",13],["Avni",24,"Ahmedabad",14],["Simran",25,"Amritsar",15],
+["Pari",22,"Patna",16],["Aditi",27,"Nagpur",17],["Mahi",23,"Dehradun",18],["Sia",24,"Nashik",19]
+];
+// User-provided Pexels photo URLs (9 unique photos; repeated to fill 20 demo profiles).
+const photos=["https://images.pexels.com/photos/31450187/pexels-photo-31450187.jpeg", "https://images.pexels.com/photos/38582968/pexels-photo-38582968.jpeg", "https://images.pexels.com/photos/38379428/pexels-photo-38379428.jpeg", "https://images.pexels.com/photos/15906953/pexels-photo-15906953.jpeg", "https://images.pexels.com/photos/11127849/pexels-photo-11127849.jpeg", "https://images.pexels.com/photos/38582964/pexels-photo-38582964.jpeg", "https://images.pexels.com/photos/13998719/pexels-photo-13998719.jpeg", "https://images.pexels.com/photos/6549417/pexels-photo-6549417.jpeg", "https://images.pexels.com/photos/29665802/pexels-photo-29665802.jpeg", "https://images.pexels.com/photos/2253453/pexels-photo-2253453.png", "https://images.pexels.com/photos/12431105/pexels-photo-12431105.jpeg", "https://images.pexels.com/photos/30703861/pexels-photo-30703861.jpeg", "https://images.pexels.com/photos/18860349/pexels-photo-18860349.jpeg", "https://images.pexels.com/photos/5341865/pexels-photo-5341865.jpeg", "https://images.pexels.com/photos/13109152/pexels-photo-13109152.jpeg", "https://images.pexels.com/photos/30703874/pexels-photo-30703874.jpeg", "https://images.pexels.com/photos/13079506/pexels-photo-13079506.jpeg", "https://images.pexels.com/photos/17040943/pexels-photo-17040943.jpeg", "https://images.pexels.com/photos/18596806/pexels-photo-18596806.jpeg", "https://images.pexels.com/photos/16442034/pexels-photo-16442034.jpeg"];
+const grid=document.getElementById("profileList");
+girls.forEach((g,i)=>{
+ const card=document.createElement("div");card.className="card";
+ const img=document.createElement("img");img.className="avatar";img.alt="Demo profile photo for "+g[0];img.loading="lazy";
+ img.src=photos[i % photos.length];
+ img.onerror=()=>{img.style.display="none";const fallback=document.createElement("div");fallback.className="avatar";fallback.style.display="grid";fallback.style.placeItems="center";fallback.style.fontSize="42px";fallback.textContent="👩";img.after(fallback)};
+ const name=document.createElement("h3");name.textContent=g[0]+", "+g[1];
+ const city=document.createElement("p");city.textContent="📍 "+g[2];
+ const open=document.createElement("button");open.className="btn profile-open";open.textContent="🔒 प्रोफाइल खोलें";open.onclick=()=>openProfile(g[0]);
+ card.append(img,name,city,open);grid.appendChild(card);
+});
+function refreshMembershipUI(){const paid=localStorage.getItem('loveconnect_membership_paid')==='yes';document.querySelectorAll('.profile-open').forEach(b=>b.textContent=paid?'👤 प्रोफाइल खोलें':'🔒 प्रोफाइल खोलें');}
+function openProfile(name){if(localStorage.getItem('loveconnect_membership_paid')!=='yes'){alert('Chat / Voice / Video विकल्प देखने के लिए पहले ₹299 की 6 महीने की मेंबरशिप लें।');location.hash='#membership';return;}alert(name+' की प्रोफाइल खुल गई। Chat / Voice Call / Video Call विकल्प दिखाई देंगे। ये अभी केवल डेमो हैं, वास्तविक कॉल या चैट नहीं करेंगे।');}
+refreshMembershipUI();
+
+</script>
+</body></html>
